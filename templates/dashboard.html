@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Digital Diary</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- WELCOME SECTION -->
+
+    <div class="welcome-container">
+
+        <h1>Welcome to My Digital Diary ✨</h1>
+
+        <p>
+            Write your memories, thoughts and feelings safely.
+        </p>
+
+        <!-- NAVBAR -->
+
+        <nav class="navbar">
+
+            <a href="/dashboard">Entries</a>
+
+            <a href="/profile">Profile</a>
+
+            <a href="/register">Register</a>
+
+            <a href="/">Home</a>
+
+            <a href="/logout">Logout</a>
+
+        </nav>
+
+    </div>
+
+    <!-- MAIN CONTAINER -->
+
+    <div class="container">
+
+        <!-- TOGGLE MODE -->
+
+        <button onclick="toggleMode()">
+            🌙 Toggle Mode
+        </button>
+
+        <!-- VOICE BUTTON -->
+
+        <button onclick="startVoice()">
+            🎤 Voice
+        </button>
+
+        <br><br>
+
+        <!-- TEXTAREA -->
+
+        <form method="POST">
+
+            <textarea
+            name="content"
+            rows="10"
+            placeholder="Write your thoughts here..."></textarea>
+
+            <br><br>
+
+            <button type="submit">
+                Save Entry
+            </button>
+
+        </form>
+
+        <br>
+
+        <!-- DATE -->
+
+        <input type="date">
+
+        <br><br>
+
+        <!-- SEARCH -->
+
+        <input
+        type="text"
+        id="searchInput"
+        placeholder="Search entries..."
+        onkeyup="searchEntries()">
+
+        <hr>
+
+        <!-- ENTRIES -->
+
+        <h2 id="entries">Saved Entries</h2>
+
+        {% for entry in entries %}
+
+        <div class="entry">
+
+            <p>{{ entry.content }}</p>
+
+            <small>
+                {{ entry.date.strftime('%d-%m-%Y %H:%M') }}
+            </small>
+
+            <br><br>
+
+            <a href="/edit/{{ entry.id }}">
+                <button>Edit</button>
+            </a>
+
+            <a href="/delete/{{ entry.id }}">
+                <button>Delete</button>
+            </a>
+
+            <button>⭐ Favorite</button>
+
+        </div>
+
+        <hr>
+
+        {% endfor %}
+
+    </div>
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+function toggleMode(){
+
+    document.body.classList.toggle("light-mode");
+}
+
+function searchEntries(){
+
+    let input =
+    document.getElementById("searchInput").value.toLowerCase();
+
+    let entries =
+    document.getElementsByClassName("entry");
+
+    for(let i=0; i<entries.length; i++){
+
+        let text =
+        entries[i].innerText.toLowerCase();
+
+        if(text.includes(input)){
+
+            entries[i].style.display = "";
+        }
+
+        else{
+
+            entries[i].style.display = "none";
+        }
+    }
+}
+
+function startVoice(){
+
+    let recognition =
+    new webkitSpeechRecognition();
+
+    recognition.onresult = function(event){
+
+        document.querySelector("textarea").value =
+        event.results[0][0].transcript;
+    };
+
+    recognition.start();
+}
+
+</script>
+
+</body>
+</html>

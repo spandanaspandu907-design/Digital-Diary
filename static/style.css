@@ -1,0 +1,134 @@
+body{
+    background-color: #121212;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+/* WELCOME SECTION */
+
+.welcome-container{
+    margin-bottom: 30px;
+}
+
+.welcome-container h1{
+    font-size: 40px;
+    color: #bb86fc;
+}
+
+.welcome-container p{
+    color: lightgray;
+    font-size: 18px;
+}
+
+/* NAVBAR */
+
+.navbar{
+    margin-top: 25px;
+}
+
+.navbar a{
+    text-decoration: none;
+    color: white;
+    background-color: #2c2c2c;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin: 5px;
+    display: inline-block;
+}
+
+.navbar a:hover{
+    background-color: #bb86fc;
+}
+
+/* MAIN BOX */
+
+.container{
+    width: 700px;
+    margin: auto;
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 20px gray;
+}
+
+/* TEXTAREA */
+
+textarea{
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+}
+
+/* BUTTON */
+
+button{
+    background-color: #bb86fc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover{
+    background-color: #9b5de5;
+}
+
+/* ENTRY BOX */
+
+.entry{
+    background-color: #2c2c2c;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+/* INPUT */
+
+input{
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+}
+
+/* LIGHT MODE */
+
+.light-mode{
+    background-color: #f5f5f5;
+    color: black;
+}
+
+.light-mode .container{
+    background-color: white;
+    color: black;
+}
+
+.light-mode .entry{
+    background-color: #dddddd;
+    color: black;
+}
+
+.light-mode textarea{
+    background-color: #eeeeee;
+    color: black;
+}
+.welcome-page{
+    text-align: center;
+    margin-top: 180px;
+}
+
+.welcome-page h1{
+    font-size: 50px;
+    color: #bb86fc;
+}
+
+.welcome-page p{
+    color: lightgray;
+    font-size: 20px;
+    margin-top: -10px;
+}
