@@ -4,33 +4,90 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# DATABASE CONFIGURATION
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diary.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# DATABASE MODEL
-class Entry(db.Model):
+# USER DATABASE TABLE
+class User(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(db.String(100), nullable=False)
+
+    email = db.Column(db.String(100), nullable=False)
+
+    password = db.Column(db.String(100), nullable=False)
+
+# DIARY ENTRY TABLE
+class Entry(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
     content = db.Column(db.Text, nullable=False)
+
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
 # HOME PAGE
 @app.route('/')
 def home():
+
     return render_template('index.html')
 
-# LOGIN PAGE
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
 # REGISTER PAGE
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
+
+    if request.method == 'POST':
+
+        username = request.form['username']
+
+        email = request.form['email']
+
+        password = request.form['password']
+
+        new_user = User(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        db.session.add(new_user)
+
+        db.session.commit()
+
+        return redirect('/login')
+
     return render_template('register.html')
 
-# DASHBOARD
+# LOGIN PAGE
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+
+    if request.method == 'POST':
+
+        email = request.form['email']
+
+        password = request.form['password']
+
+        user = User.query.filter_by(
+            email=email,
+            password=password
+        ).first()
+
+        if user:
+
+            return redirect('/dashboard')
+
+        else:
+
+            return "Invalid Email or Password"
+
+    return render_template('login.html')
+
+# DASHBOARD PAGE
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
 
@@ -46,15 +103,20 @@ def dashboard():
 
         return redirect('/dashboard')
 
-    entries = Entry.query.order_by(Entry.date.desc()).all()
+    entries = Entry.query.order_by(
+        Entry.date.desc()
+    ).all()
 
-    return render_template('dashboard.html', entries=entries)
+    return render_template(
+        'dashboard.html',
+        entries=entries
+    )
 
 # DELETE ENTRY
 @app.route('/delete/<int:id>')
 def delete(id):
 
-    entry = Entry.query.get(id)
+    entry = db.session.get(Entry, id)
 
     db.session.delete(entry)
 
@@ -66,7 +128,7 @@ def delete(id):
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
 
-    entry = Entry.query.get(id)
+    entry = db.session.get(Entry, id)
 
     if request.method == 'POST':
 
@@ -76,22 +138,35 @@ def edit(id):
 
         return redirect('/dashboard')
 
-    return render_template('edit.html', entry=entry)
+    return render_template(
+        'edit.html',
+        entry=entry
+    )
 
 # PROFILE PAGE
 @app.route('/profile')
 def profile():
-    return render_template('profile.html')
+
+    user = User.query.first()
+
+    return render_template(
+        'profile.html',
+        user=user
+    )
 
 # LOGOUT
 @app.route('/logout')
 def logout():
+
     return redirect('/')
 
 # RUN APP
 if __name__ == '__main__':
 
     with app.app_context():
+
         db.create_all()
 
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000,
+        debug=True)
+    
