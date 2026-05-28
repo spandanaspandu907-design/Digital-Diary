@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = "secret123"
 
 # DATABASE CONFIGURATION
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diary.db'
@@ -29,6 +30,11 @@ class Entry(db.Model):
     content = db.Column(db.Text, nullable=False)
 
     date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id')
+    )
 
 # HOME PAGE
 @app.route('/')
@@ -69,17 +75,17 @@ def login():
     if request.method == 'POST':
 
         email = request.form['email']
-
         password = request.form['password']
 
-        user = User.query.filter_by(
-            email=email,
-            password=password
-        ).first()
+        user = User.query.filter_by(email=email).first()
 
         if user:
 
-            return redirect('/dashboard')
+            if user.password == password:
+
+                session['user_id'] = user.id    
+
+                return redirect('/dashboard')
 
         else:
 
@@ -91,11 +97,18 @@ def login():
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
 
+    if 'user_id' not in session:
+
+        return redirect('/login')
+
     if request.method == 'POST':
 
         diary_text = request.form['content']
 
-        new_entry = Entry(content=diary_text)
+        new_entry = Entry(
+            content=diary_text,
+            user_id=session['user_id']
+            )
 
         db.session.add(new_entry)
 
@@ -103,7 +116,9 @@ def dashboard():
 
         return redirect('/dashboard')
 
-    entries = Entry.query.order_by(
+    entries = Entry.query.filter_by(
+        user_id=session['user_id']
+        ).order_by(
         Entry.date.desc()
     ).all()
 
@@ -147,7 +162,14 @@ def edit(id):
 @app.route('/profile')
 def profile():
 
-    user = User.query.first()
+    if 'user_id' not in session:
+
+        return redirect('/login')
+
+    user = db.session.get(
+        User,
+        session['user_id']
+    )
 
     return render_template(
         'profile.html',
@@ -157,6 +179,8 @@ def profile():
 # LOGOUT
 @app.route('/logout')
 def logout():
+
+    session.pop('user_id', None)
 
     return redirect('/')
 
